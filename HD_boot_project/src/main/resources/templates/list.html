@@ -64,8 +64,12 @@
         	</li>
 		  </ul>
 		<a th:href="@{/board/insert}" class="btn btn-secondary">글쓰기</a>
-		<a th:href="@{/login}" class="btn btn-secondary">LOGIN</a>
-		<a th:href="@{/login}" class="btn btn-secondary">관리자로 로그인</a>
+		
+		<a sec:authorize="!isAuthenticated()">
+			<a th:href="@{/login}" class="btn btn-secondary">LOGIN</a>
+		</a>
+		<a sec:authorize="hasRole('ROLE_USER')" th:href="@{/logout}" class="btn btn-secondary">로그아웃</a>
+ 
 	</div>
 </body>
 

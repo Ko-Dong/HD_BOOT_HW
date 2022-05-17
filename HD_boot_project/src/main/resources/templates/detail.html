@@ -52,9 +52,11 @@
         </div>
     </div>
 </div>
+<div id = "detailbutton">
 <a th:href="@{/board/list}" class="btn btn-secondary">게시글 리스트 보기</a>
 <a th:href="@{/board/updatepage(bno=${bno})}" class="btn btn-secondary">게시글 수정</a>
 <a th:onclick="javascript:deleteArticle()" class="btn btn-secondary">게시글 삭제</a>
+</div>
 
 </body>
 <script th:inline="javascript">
@@ -89,6 +91,7 @@ $(document).ready(function(){
 			var str4 ="";
 			var str5 ="";
 			var str6 ="";
+			var str7 ="";
 			var split_arr = res.bdate.split("T");
 				
 			str1 += "<div class=\"form-control\">" + res.bno + "</div>";
@@ -97,6 +100,8 @@ $(document).ready(function(){
 			str4 += "<div class=\"form-control\">" + res.bcontent + "</div>";
 			str5 += "<div class=\"form-control\">" + split_arr[0] + "</div>";
 			str6 += "<div class=\"form-control\">" + res.hit + "</div>";
+			
+					
 				
 			$("#number").append(str1);
 			$("#title").append(str2);

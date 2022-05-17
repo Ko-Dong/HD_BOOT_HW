@@ -66,9 +66,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
        
        
         http.authorizeRequests()
-               .antMatchers("/board/list").permitAll()//  /loginaccess/all 모든 사용자 가능(바로 all.html로 이동)
-               .antMatchers("/board/detail").hasRole("USER");//  /loginaccess/member USER 롤 사용자만(로그인 창으로 이동)
-               //.antMatchers("/board/").hasRole("ADMIN");//  /loginaccess/admin ADMIN 롤 사용자만(로그인 창으로 이동)
+               .antMatchers("/board/list").permitAll()//  
+               .antMatchers("board/insert").hasRole("USER")
+               .antMatchers("/board/updatepage").hasRole("USER")
+               .antMatchers("/board/detail").hasRole("USER");
+               //.antMatchers("/board/").hasRole("ADMIN");// 
 
        //인가 인증 문제시 로그인 화면
        http.formLogin().defaultSuccessUrl("/board/list");
