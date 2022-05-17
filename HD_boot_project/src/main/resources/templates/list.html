@@ -1,0 +1,114 @@
+<!-- 작성자 : 고동현 -->
+<!-- 게시판 View 작성 -->
+<!DOCTYPE html>
+<html lang="ko" xmlns:th=http://www.thymeleaf.org
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<meta charset="UTF-8"/>    
+<script src="http://code.jquery.com/jquery-2.2.3.min.js"> </script>
+<head>
+	<title>board</title>
+	<link rel="stylesheet" th:href="@{/bootstrap-4.6.0-dist/css/bootstrap.min.css}"/>
+	<link rel="stylesheet" th:href="@{/css/app.css}"></link>
+</head>
+
+<body>
+<h3 class="display-4" style="text-align:center; margin-top:20px; margin-bottom:20px; font-size:1.5em; font-weight: bold;">현대 IT&E 4기 자유게시판</h3>
+ <input type="hidden" th:value="${pageNo}" id="pageNo"/>
+	<div class="container">        
+		<table class="table table-striped">
+			<colgroup>
+				<col width="15%"/>
+				<col width="*"/>
+				<col width="15%"/>
+				<col width="25%"/>
+			</colgroup>
+			<thead>
+				<tr>
+					<th scope="col">글번호</th>
+					<th scope="col">제목</th>
+					<th scope="col">조회수</th>
+					<th scope="col">작성일</th>
+				</tr>
+			</thead>
+			<tbody id = "boards">
+			</tbody>
+		</table>
+		<hr/>
+		<!-- 페이징 관련 버튼 및 링크 작성 -->
+		  <ul class="pagination" style="margin-left:auto;margin-right:auto">
+		  	<!-- 첫 페이지 -->
+		  	<li th:if="${pager.startPageNo > 1}">
+            	<a class="page-link" th:href="@{?pageNo=1}" th:text="'<<'"></a>
+        	</li>
+        	<!-- 이전 페이지 그룹으로 이동 -->
+		  	<li th:if="${pager.startPageNo > 1}">
+            	<a class="page-link" th:href="@{?pageNo=${pager.startPageNo - pager.pagesPerGroup}}" 
+            	th:text="'<'"></a>
+        	</li>
+        	<!-- 페이지 번호와 이동 -->
+		    <th:block  th:with="start = ${pager.startPageNo}, end = ${pager.endPageNo}">
+			    <li class="page-item" 
+			    		 th:with="start = ${pager.startPageNo}, end = ${pager.endPageNo}"
+			    		th:each="pageButton : ${#numbers.sequence(start, end)}">
+			    		<a class="page-link" th:href="@{?pageNo={page} (page = ${pageButton})}" th:text=${pageButton}></a>
+			    </li>
+		    </th:block>
+		    <!-- 다음 페이지 그룹으로 이동 -->
+		    <li th:if="${pager.endPageNo < pager.totalPageNo}">
+		   		<a class="page-link" th:href="@{?pageNo=${pager.startPageNo + pager.pagesPerGroup}}" 
+            	th:text="'>'"></a>
+		    </li>
+		    <!-- 끝 페이지로 이동 -->
+		    <li th:if="${pager.endPageNo < pager.totalPageNo}">
+            	<a class="page-link" th:href="@{?pageNo=${pager.totalPageNo}}" th:text="'>>'"></a>
+        	</li>
+		  </ul>
+		<a th:href="@{/board/insert}" class="btn btn-secondary">글쓰기</a>
+		<a th:href="@{/login}" class="btn btn-secondary">LOGIN</a>
+		<a th:href="@{/login}" class="btn btn-secondary">관리자로 로그인</a>
+	</div>
+</body>
+
+<script th:inline="javascript">
+// getList 자동 실행
+$(document).ready(function(){
+	getList();
+});
+		var pageNo = $("#pageNo").val();
+		console.log(pageNo);
+		var hit = true;
+		function getList(){	
+   	          $.ajax({
+   	        	  url:"/board/getlist?pageNo=" + pageNo, // 해당 페이지 번호 게시글들 불러오기
+   	        	  type: "get",
+   	        	  data: "",
+   	        	  dataType: "JSON",
+   	        	  success: function(args){
+   	        		  fnSuccess(args);
+   	        	  },
+   	        	  error:function(args){
+   	        		  alert("에러 발생");
+   	        	  }
+   	          });
+		}
+		
+		function fnSuccess(res){
+			console.log(res);
+			if(res != null){
+				var str ="";
+				res.boards.forEach(function(d){
+ 					var split_arr = d.bdate.split("T");
+					str += "<tr>" +
+								"<td>" + d.bno + "</td>" +
+								"<td style = \"font-weight:bold;\" onclick =\"location.href=\'/board/detail?bno=" + d.bno +"&hit=" + hit +"\'\">" + d.btitle + "</td>" +
+								"<td>" + d.hit + "</td>" +
+								"<td>" + split_arr[0] + "</td>" +
+							"</tr>";
+							// 불러온 게시글들 출력해주기
+							console.log(hit);
+				});
+				$("#boards").append(str);
+			}
+		}
+     </script>
+</html>

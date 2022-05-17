@@ -1,0 +1,83 @@
+<!-- 작성자 : 고동현 -->
+<!-- 게시판 글 수정 페이지 작성 -->
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<th:block th:replace="~{common/layout::setContent(~{this::content})}">
+<th:block th:fragment="content">
+<head>
+<meta charset="UTF-8">
+<title>update</title>
+</head>
+<body>
+<input type="hidden" th:value="${bno}" id="bno"/>
+	<!-- 게시물 수정 시작 -->
+<div class="card m-2">
+    <div class="card-header">
+        게시물 수정
+    </div>
+    
+    <div class="card-body">
+        <div>
+<!--         			게시글 수정 폼 -->
+            <form id="boardUpdateForm">
+                <div class="input-group">
+                    <div class="input-group-prepend"><span class="input-group-text">글번호</span></div>
+                    <div class="form-control" id = "bno" th:text="${bno}" ></div>
+                </div>          
+                <div class="input-group">
+                    <div class="input-group-prepend"><span class="input-group-text">글제목</span></div>
+                    <input type="text" name="btitle" class="form-control">
+                </div>
+               
+                <div class="input-group">
+                    <div class="input-group-prepend"><span class="input-group-text">글내용</span></div>
+                    <textarea name="bcontent" class="form-control"></textarea>
+                </div>
+               
+                <div class="input-group">
+                    <div class="input-group-prepend"><span class="input-group-text">첨부파일</span></div>
+                    <input type="file" class="form-control" name="battach">
+                </div>
+                   
+                <div class="mt-3">
+                    <a href="javascript:updateBoard()" class="btn btn-info btn-sm mr-2">수정완료</a>
+                </div>
+            </form>
+            <script th:inline="javascript">
+                function updateBoard() {
+                    const bno = $("#bno").val();
+                    const btitle = $("#boardUpdateForm [name=btitle]").val();
+                    const bcontent = $("#boardUpdateForm [name=bcontent]").val();
+                    const battach = document.querySelector("#boardUpdateForm [name=battach]").files[0];
+                   
+                    //폼에 입력된 데이터 담아주기
+                    const formData = new FormData();
+                    formData.append("bno", bno);
+                    formData.append("btitle", btitle);
+                    formData.append("bcontent", bcontent);
+                    if(battach) {
+                        formData.append("battach", battach); 
+                    }
+                   
+                    $.ajax({
+                        url: "[(@{/board/update2})]", // 업데이트 
+                        headers: {Authorization:`Bearer ${sessionStorage.getItem("jwt")}`},
+                        
+                        method: "post",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        cache: false
+                    }).done((data) => {
+                        console.log(data);
+                        location.href = "/board/list"; //업데이트 후 게시글 페이지로 이동
+                    });
+                }
+            </script>
+        </div>
+    </div>
+</div>
+<!-- 게시물 수정 끝 -->
+</body>
+</html>

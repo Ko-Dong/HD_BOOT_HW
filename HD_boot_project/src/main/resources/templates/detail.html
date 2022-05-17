@@ -1,0 +1,132 @@
+<!-- 작성자 : 고동현 -->
+<!-- 게시판 글 상세 페이지 작성 -->
+<!DOCTYPE html>
+<html lang="ko" xmlns:th=http://www.thymeleaf.org
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<th:block th:replace="~{common/layout::setContent(~{this::content})}">
+<th:block th:fragment="content">
+<script src="http://code.jquery.com/jquery-2.2.3.min.js"> </script>
+<head>
+<meta charset="UTF-8">
+<title>글 상세</title>
+</head>
+ <body>
+ 
+ <input type="hidden" th:value="${bno}" id="bno"/>
+ <input type="hidden" th:value="${hit}" id="hit"/>
+ <div class="card m-2">
+    <div class="card-header">
+        게시물 상세보기
+    </div>
+    <div class="card-body">
+        <div>
+<!--         글 상세 폼 작성 -->
+            <form id="downloadAttachForm">
+                <div class="input-group">
+                    <div class="input-group-prepend"><span class="input-group-text" id = "number">글번호 </span></div>
+                    
+                </div>
+                <div class="input-group">
+                    <div class="input-group-prepend"><span class="input-group-text" id = "title">제목 </span></div>
+                    
+                </div>
+                <div class="input-group">
+                    <div class="input-group-prepend"><span class="input-group-text" id = "name">작성자 </span></div>
+                    
+                </div>
+                <div class="input-group">
+                    <div class="input-group-prepend"><span class="input-group-text" id = "content">내용 </span></div>
+                    
+                </div>
+                <div class="input-group">
+                    <div class="input-group-prepend"><span class="input-group-text" id = "date">작성일 </span></div>
+                    
+                </div>
+                  
+                <div class="mt-3">
+                    <a href="javascript:downloadAttach()" 
+                       class="btn btn-info btn-sm mr-2">첨부된 사진 보기</a><!-- 첨부된 사진 보기 -->
+                </div>      
+            </form>
+            <img id="attachImg" class="mt-2" width="300px" />
+        </div>
+    </div>
+</div>
+<a th:href="@{/board/list}" class="btn btn-secondary">게시글 리스트 보기</a>
+<a th:href="@{/board/updatepage(bno=${bno})}" class="btn btn-secondary">게시글 수정</a>
+<a th:onclick="javascript:deleteArticle()" class="btn btn-secondary">게시글 삭제</a>
+
+</body>
+<script th:inline="javascript">
+
+$(document).ready(function(){
+	getDetail();
+});
+		var bno = $("#bno").val();
+		var hit = $("#hit").val();
+		console.log(hit);
+		function getDetail(){	
+   	          $.ajax({
+   	        	  url:"/board/"+ bno + "/" + hit, // 조회수 관련하여 게시글 상세 조회 호출
+   	        	  type: "get",
+   	        	  data: "",
+   	        	  dataType: "JSON",
+   	        	  success: function(args){
+   	        		  fnSuccess(args);
+   	        	  },
+   	        	  error:function(args){
+   	        		  alert("에러 발생");
+   	        	  }
+   	          });
+		}
+		// 받아온 결과 하드코딩
+		function fnSuccess(res){
+			console.log(res);
+			if(res != null){
+			var str1 ="";
+			var str2 ="";
+			var str3 ="";
+			var str4 ="";
+			var str5 ="";
+			var str6 ="";
+			var split_arr = res.bdate.split("T");
+				
+			str1 += "<div class=\"form-control\">" + res.bno + "</div>";
+			str2 += "<div class=\"form-control\">" + res.btitle + "</div>";
+			str3 += "<div class=\"form-control\">" + res.mid + "</div>";
+			str4 += "<div class=\"form-control\">" + res.bcontent + "</div>";
+			str5 += "<div class=\"form-control\">" + split_arr[0] + "</div>";
+			str6 += "<div class=\"form-control\">" + res.hit + "</div>";
+				
+			$("#number").append(str1);
+			$("#title").append(str2);
+			$("#name").append(str3);
+			$("#content").append(str4);
+			$("#date").append(str5);
+			$("#hit").append(str6);
+			
+			}
+		}
+		
+		function downloadAttach() { // 게시글에 첨부된 사진 받아오기
+            const bno = $("#bno").val();
+            const url = "[(@{/board/battach/})]" + bno;
+            const jwt = "jwt=" + sessionStorage.getItem("jwt");
+            // <img src="http://localhost/board/battach/3344?jwt=xxx"
+            $("#attachImg").attr("src", `${url}?${jwt}`);
+        }
+		
+		function deleteArticle(){ // 게시글 삭제
+			$.ajax({
+ 	        	  url:"/board/"+ bno,//해당 게시글 번호 넘겨주기
+ 	        	  type: "delete",
+ 	        	  data: "",
+ 	        	  dataType: "JSON",
+ 	          }).done((data) => {
+    
+                  location.href = "/board/list"; // 게시글 삭제 후 리스트 출력
+				});
+		}
+	
+     </script>
+</html>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 작성자 : 고동현 -->
+<!-- 게시글 관련 mapper 작성 -->
+<mapper namespace="com.boothw.webapp.dao.BoardDao">
+	
+	
+	<select id="selectByPage" parameterType="pager"
+        resultType="board">
+        SELECT rnum, bno, btitle, bdate, mid, hit, writer
+        FROM (
+            SELECT ROWNUM as rnum, bno, btitle, bdate, mid, hit, writer
+            FROM (
+                SELECT bno, btitle, bdate, mid, hit, writer
+                FROM board
+                ORDER BY bno DESC
+                )
+            WHERE rownum &lt;= #{endRowNo} <!-- 현재 페이지에 있는 글 수 만큼 받아옴 -->
+        )
+        WHERE rnum &gt;= #{startRowNo} <!-- 현재 페이지 1번부터 받아옴 -->
+    </select>
+ 
+    <select id="count" resultType="int">
+        SELECT count(*) FROM board
+    </select>
+    
+<!--  게시글 번호로 조회 -->
+    <select id="selectByBno" parameterType="int" resultType="board">
+        SELECT
+        bno, btitle, bcontent, bdate, mid, hit, battachoname,
+        battachsname, battachtype, writer
+        FROM board
+        WHERE bno=#{bno}
+    </select>
+    
+    <!--  작성자로 조회 -->
+    <select id="selectByWriter" parameterType="String" resultType="board">
+        SELECT
+        bno, btitle, bcontent, bdate, mid, hit, battachoname,
+        battachsname, battachtype, writer
+        FROM board
+        WHERE writer=#{writer}
+    </select>
+    
+<!--  게시글 작성 -->
+    <insert id="insert" parameterType="board">
+        <selectKey order="BEFORE" resultType="int" keyProperty="bno">
+            SELECT SEQ_BNO.nextval FROM dual
+        </selectKey>
+        <if test="battachoname == null"> <!-- 첨부파일없을때 -->
+            INSERT INTO board
+            (bno, btitle, bcontent, mid, bdate, hit, writer)
+            VALUES
+            (#{bno}, #{btitle},
+            #{bcontent}, #{mid}, SYSDATE, 0, #{writer})
+        </if>
+        <if test="battachoname != null"> <!-- 첨부파일있을때 -->
+            INSERT INTO board
+            (bno, btitle, bcontent, mid, bdate, hit, battachoname, battachsname,
+            battachtype, writer)
+            VALUES
+            (#{bno}, #{btitle}, #{bcontent}, #{mid}, sysdate, 0, #{battachoname},
+            #{battachsname}, #{battachtype}, #{writer})
+        </if>
+    </insert>
+ 
+<!-- 게시글 삭제  -->
+    <delete id="deleteByBno" parameterType="int">
+        DELETE FROM board WHERE
+        bno=#{bno}
+    </delete>
+ 
+<!--  게시글 수정 -->
+    <update id="update" parameterType="board">
+        <if test="battachoname == null"> <!-- 첨부파일 없을때 -->
+            UPDATE board SET
+            btitle=#{btitle},
+            bcontent=#{bcontent},
+            bdate=sysdate
+            WHERE bno=#{bno}
+        </if>
+        <if test="battachoname != null"> <!-- 첨부파일 있을때 -->
+            UPDATE board SET
+            btitle=#{btitle},
+            bcontent=#{bcontent},
+            bdate=sysdate,
+            battachoname=#{battachoname},
+            battachsname=#{battachsname},
+            battachtype=#{battachtype}
+            WHERE bno=#{bno}
+        </if>
+    </update>
+ 
+<!--  조회수 증가 -->
+    <update id="updatehit" parameterType="int">
+        UPDATE board SET hit=hit+1 WHERE bno=#{bno}
+    </update>
+
+
+
+</mapper>
